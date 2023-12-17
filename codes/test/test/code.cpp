@@ -1,5 +1,7 @@
 #include <iostream>
-#include <string>
+#include <vector>
+#include <queue>
+#include <set>
 using namespace std;
 
 const int MAX_ITEMS = 10; // 한 칸에 들어갈 수 있는 상품의 최대 개수
@@ -12,7 +14,6 @@ const int WALL = -5;
 const int ROAD = 0;
 const int ENTRANCE = -1;
 const int CHECKOUT = -2;
-
 
 // 상품 클래스 정의
 class Item {
@@ -398,7 +399,75 @@ void setup()
     set_myCart();
 }
 
+// BFS를 사용하여 최단 경로 찾기
+vector<pair<int, int>> bfs(pair<int, int> start, pair<int, int> goal) {
+    set<pair<int, int>> visited;
+    queue<pair<pair<int, int>, vector<pair<int, int>>>> q;
+    q.push({ start, {start} });
+
+    while (!q.empty()) {
+        auto front = q.front();
+        pair<int, int> current = front.first;
+        vector<pair<int, int>> path = front.second;
+        q.pop();
+
+        if (current == goal) {
+            return path;
+        }
+
+        const int dx[] = { -1, -1, 0, 1, 1, 1, 0, -1 };
+        const int dy[] = { 0, 1, 1, 1, 0, -1, -1, -1 };
+
+        cout << "현재 위치 : " << current.first << "," << current.second << endl;
+
+        for (int i = 0; i < 8; ++i) {
+            int ny = current.first + dy[i];
+            int nx = current.second + dx[i];
+
+
+            if (ny >= 0 && ny < HEIGHT && nx >= 0 && nx < WIDTH && floorMap[ny][nx].productNumber == ROAD && !visited.count({ ny, nx })) 
+            {
+                // 현재 탐색 위치 로그 출력
+                cout << "탐색 위치: (" << ny << ", " << nx << ")" << endl;
+
+                visited.insert({ ny, nx });
+                vector<pair<int, int>> new_path = path;
+                new_path.push_back({ ny, nx });
+                q.push({ {ny, nx}, new_path });
+            }
+        }
+
+        cout << endl;
+    }
+
+    return {};
+}
+
+
 int main()
 {
+    setup(); // 마트 지도와 상품 리스트 설정
+
+    pair<int, int> start = { 14, 3 }; // 시작점
+    vector<pair<int, int>> path;
+
+    // 장바구니에 있는 모든 상품에 대해 경로 찾기
+    for (int i = 0; i < myCart.itemCount; ++i) {
+        int y = myCart.cartItems[i]->itemX;
+        int x = myCart.cartItems[i]->itemY;
+        vector<pair<int, int>> itemPath = bfs(start, { y, x });
+        path.insert(path.end(), itemPath.begin(), itemPath.end());
+        start = { y, x }; // 다음 상품을 위한 시작점 업데이트
+    }
+
+    // 카운터까지의 경로 찾기
+    vector<pair<int, int>> checkoutPath = bfs(start, { 15, 19 }); // 카운터의 위치를 가정
+    path.insert(path.end(), checkoutPath.begin(), checkoutPath.end());
+
+    // 경로 출력
+    for (auto p : path) {
+        cout << "(" << p.first << ", " << p.second << ")\n";
+    }
+
     return 0;
-}
+}`      `
