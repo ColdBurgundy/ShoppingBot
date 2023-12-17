@@ -2,6 +2,7 @@
 #include <vector>
 #include <queue>
 #include <set>
+#include <Windows.h>
 using namespace std;
 
 const int MAX_ITEMS = 10; // 한 칸에 들어갈 수 있는 상품의 최대 개수
@@ -400,6 +401,7 @@ void setup()
 }
 
 // BFS를 사용하여 최단 경로 찾기
+/*
 vector<pair<int, int>> bfs(pair<int, int> start, pair<int, int> goal) {
     set<pair<int, int>> visited;
     queue<pair<pair<int, int>, vector<pair<int, int>>>> q;
@@ -442,32 +444,109 @@ vector<pair<int, int>> bfs(pair<int, int> start, pair<int, int> goal) {
 
     return {};
 }
+*/
+vector<pair<int, int>> bfs(pair<int, int> start, pair<int, int> goal) {
+    set<pair<int, int>> visited;
+    queue<pair<pair<int, int>, vector<pair<int, int>>>> q;
+    q.push({ start, {start} });
+
+    while (!q.empty()) {
+        auto front = q.front();
+        pair<int, int> current = front.first;
+        vector<pair<int, int>> path = front.second;
+        q.pop();
+
+        // 목표 지점의 주변에 도달했는지 확인
+        for (int dx = -1; dx <= 1; dx++) {
+            for (int dy = -1; dy <= 1; dy++) {
+                if (current == make_pair(goal.first + dx, goal.second + dy)) {
+                    return path;
+                }
+            }
+        }
+
+        const int dx[] = { -1, 0, 1, 0 };
+        const int dy[] = { 0, 1, 0, -1 };
+
+        for (int i = 0; i < 4; ++i) {
+            int ny = current.first + dy[i];
+            int nx = current.second + dx[i];
+
+            if (ny >= 0 && ny < HEIGHT && nx >= 0 && nx < WIDTH && floorMap[ny][nx].productNumber == ROAD && !visited.count({ ny, nx })) {
+                visited.insert({ ny, nx });
+                vector<pair<int, int>> new_path = path;
+                new_path.push_back({ ny, nx });
+                q.push({ {ny, nx}, new_path });
+            }
+        }
+    }
+
+    return {};
+}
+
+vector<pair<int, int>> Realpath;
+void RunBFS()
+{
+    pair<int, int> start = { 14, 3 }; // 시작점
+
+    for (int i = 0; i < myCart.itemCount; ++i) {
+        int y = myCart.cartItems[i]->itemX;
+        int x = myCart.cartItems[i]->itemY;
+
+        // 상품 주변 8방향 중 최단 경로를 찾기
+        vector<pair<int, int>> shortestPath;
+        int shortestLength = INT_MAX;
+        for (int dx = -1; dx <= 1; dx++) {
+            for (int dy = -1; dy <= 1; dy++) {
+                vector<pair<int, int>> itemPath = bfs(start, { y + dy, x + dx });
+                if (!itemPath.empty() && itemPath.size() < shortestLength) {
+                    shortestPath = itemPath;
+                    shortestLength = itemPath.size();
+                }
+            }
+        }
+
+        Realpath.insert(Realpath.end(), shortestPath.begin(), shortestPath.end());
+
+        // 마지막 방문 위치를 다음 상품의 시작점으로 설정
+        start = shortestPath.back();
+    }
 
 
+    // 카운터까지의 경로 찾기
+    vector<pair<int, int>> checkoutPath = bfs(start, { 15, 19 }); // 카운터의 위치를 가정
+    Realpath.insert(Realpath.end(), checkoutPath.begin(), checkoutPath.end());
+}
+
+void printPath()
+{
+    //test
+    Slot floorMapCopy[WIDTH][HEIGHT];
+    copy(&floorMap[0][0], &floorMap[WIDTH - 1][HEIGHT - 1], &floorMapCopy[0][0]);
+
+    // 경로 출력
+    int cnt = 100;
+    for (auto p : Realpath)
+    {
+        system("cls");
+        cout << "(" << p.first << ", " << p.second << ")\n";
+        floorMapCopy[p.first][p.second].productNumber = cnt;
+        for (int i = 1; i < HEIGHT; i++)
+        {
+            for (int j = 1; j < WIDTH; j++)
+                printf("%5d", floorMapCopy[i][j].productNumber);
+            printf("\n");
+        }
+        floorMapCopy[p.first][p.second].productNumber = ROAD;
+        Sleep(1000);
+    }
+}
 int main()
 {
     setup(); // 마트 지도와 상품 리스트 설정
 
-    pair<int, int> start = { 14, 3 }; // 시작점
-    vector<pair<int, int>> path;
-
-    // 장바구니에 있는 모든 상품에 대해 경로 찾기
-    for (int i = 0; i < myCart.itemCount; ++i) {
-        int y = myCart.cartItems[i]->itemX;
-        int x = myCart.cartItems[i]->itemY;
-        vector<pair<int, int>> itemPath = bfs(start, { y, x });
-        path.insert(path.end(), itemPath.begin(), itemPath.end());
-        start = { y, x }; // 다음 상품을 위한 시작점 업데이트
-    }
-
-    // 카운터까지의 경로 찾기
-    vector<pair<int, int>> checkoutPath = bfs(start, { 15, 19 }); // 카운터의 위치를 가정
-    path.insert(path.end(), checkoutPath.begin(), checkoutPath.end());
-
-    // 경로 출력
-    for (auto p : path) {
-        cout << "(" << p.first << ", " << p.second << ")\n";
-    }
+    RunBFS();
+    printPath(); 
 
     return 0;
-}`      `
+}
