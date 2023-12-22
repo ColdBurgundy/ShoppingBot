@@ -1,0 +1,22 @@
+<메카솔루션>
+Linear CCD 바코드 스캐너 모듈 1D Barcode Scanner USB [DE1200]
+1개 -> 37070원
+https://mechasolution.com/shop/goods/goods_view.php?goodsno=584145&category=
+
+아두이노 2.2인치 TFT LCD 모듈 240 x 320 / ILI9341C, SD카드 지원 / SPI통신
+2개 -> 11000 * 2 = 22000원
+https://mechasolution.com/shop/goods/goods_view.php?goodsno=9241&category=
+
+아두이노 조이스틱 모듈 (5pin Joystick Module)
+2개 -> 690 * 2 = 1380원
+https://mechasolution.com/shop/goods/goods_view.php?goodsno=712&category=
+
+
+<디바이스마트 DEVICE MART>
+[OEM] 블루투스 직렬포트 모듈 HC-06 (DIP) [SZH-EK010]
+1개 -> 6000 = 6000원
+https://www.devicemart.co.kr/goods/view?no=1278220&gad_source=1&gclid=Cj0KCQiAuqKqBhDxARIsAFZELmJTSoJq_z10xNzwIoBTlJ1zkN8u1HA0t9il_lAJ5eUDLvxeV82SbqgaAtl_EALw_wcB
+
+[SMG] 아두이노 Uno용 USB HOST 쉴드
+1개 -> 18000원
+https://www.devicemart.co.kr/goods/view?no=12496057
